@@ -1,0 +1,3 @@
+# Sensitive variables - Create a secrets.auto.tfvars file with these values:
+# github_token = "your-github-token-here"
+# github_owner = "your-github-username" 
