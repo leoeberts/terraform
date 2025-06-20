@@ -5,6 +5,11 @@ variable "region" {
   default     = "eu-central-1"
 }
 
+variable "profile" {
+  description = "The AWS CLI profile to use for authentication"
+  type        = string
+}
+
 # Network Module Variables
 variable "vpc_cidr_block" {
   type        = string
@@ -39,26 +44,6 @@ variable "vpc_name" {
 variable "igw_name" {
   type        = string
   description = "The name tag to assign to the Internet Gateway"
-}
-
-variable "route_peer_1_cidr" {
-  type        = string
-  description = "CIDR block for the first peering connection route"
-}
-
-variable "route_peer_2_cidr" {
-  type        = string
-  description = "CIDR block for the second peering connection route"
-}
-
-variable "route_peer_1_id" {
-  type        = string
-  description = "VPC Peering connection ID for peer 1"
-}
-
-variable "route_peer_2_id" {
-  type        = string
-  description = "VPC Peering connection ID for peer 2"
 }
 
 variable "public_route_table_name" {
@@ -219,22 +204,12 @@ variable "sg_internal_name" {
 }
 
 # Peering Module Variables
-variable "peer_personal_vpc_id" {
-  type        = string
-  description = "VPC ID of the personal peer"
-}
-
-variable "peer_main_vpc_id" {
-  type        = string
-  description = "VPC ID of the main peer"
-}
-
-variable "peer_personal_name" {
-  type        = string
-  description = "Name tag for the personal peering connection"
-}
-
-variable "peer_main_name" {
-  type        = string
-  description = "Name tag for the main peering connection"
+variable "peerings" {
+  description = "List of static peering definitions"
+  type = list(object({
+    name        = string
+    peer_vpc_id = string
+    peer_cidr   = string
+    peer_region = optional(string)
+  }))
 }

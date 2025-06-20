@@ -10,14 +10,6 @@ resource "aws_vpc" "main" {
   }
 }
 
-resource "aws_internet_gateway" "main" {
-  vpc_id = aws_vpc.main.id
-
-  tags = {
-    Name = var.igw_name
-  }
-}
-
 resource "aws_subnet" "private_1a" {
   vpc_id                          = aws_vpc.main.id
   cidr_block                      = var.subnet_private_1a_cidr
@@ -99,43 +91,33 @@ resource "aws_subnet" "public_1c" {
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
-  }
-
-  route {
-    ipv6_cidr_block = "::/0"
-    gateway_id      = aws_internet_gateway.main.id
-  }
-
-  route {
-    cidr_block                = var.route_peer_1_cidr
-    vpc_peering_connection_id = var.route_peer_1_id
-  }
-
-  route {
-    cidr_block                = var.route_peer_2_cidr
-    vpc_peering_connection_id = var.route_peer_2_id
-  }
-
   tags = {
     Name = var.public_route_table_name
   }
 }
 
-resource "aws_route_table" "private" {
+resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block                = var.route_peer_1_cidr
-    vpc_peering_connection_id = var.route_peer_1_id
+  tags = {
+    Name = var.igw_name
   }
+}
 
-  route {
-    cidr_block                = var.route_peer_2_cidr
-    vpc_peering_connection_id = var.route_peer_2_id
-  }
+resource "aws_route" "public_igw_ipv4" {
+  route_table_id         = aws_route_table.public.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.main.id
+}
+
+resource "aws_route" "public_igw_ipv6" {
+  route_table_id              = aws_route_table.public.id
+  destination_ipv6_cidr_block = "::/0"
+  gateway_id                  = aws_internet_gateway.main.id
+}
+
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
 
   tags = {
     Name = var.private_route_table_name

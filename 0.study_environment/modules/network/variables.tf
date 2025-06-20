@@ -33,26 +33,6 @@ variable "igw_name" {
   description = "Name tag for the Internet Gateway"
 }
 
-variable "route_peer_1_cidr" {
-  type        = string
-  description = "CIDR block for peer 1"
-}
-
-variable "route_peer_2_cidr" {
-  type        = string
-  description = "CIDR block for peer 2"
-}
-
-variable "route_peer_1_id" {
-  type        = string
-  description = "Peering connection ID for peer 1"
-}
-
-variable "route_peer_2_id" {
-  type        = string
-  description = "Peering connection ID for peer 2"
-}
-
 variable "public_route_table_name" {
   type        = string
   description = "Name for public route table"

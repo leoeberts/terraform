@@ -10,11 +10,6 @@ module "network" {
 
   igw_name = var.igw_name
 
-  route_peer_1_cidr = var.route_peer_1_cidr
-  route_peer_2_cidr = var.route_peer_2_cidr
-  route_peer_1_id   = var.route_peer_1_id
-  route_peer_2_id   = var.route_peer_2_id
-
   public_route_table_name  = var.public_route_table_name
   private_route_table_name = var.private_route_table_name
 
@@ -65,12 +60,8 @@ module "security" {
 }
 
 module "peering" {
-  source = "./modules/peering"
-
-  vpc_id = module.network.vpc_id
-
-  peer_personal_vpc_id = var.peer_personal_vpc_id
-  peer_main_vpc_id     = var.peer_main_vpc_id
-  peer_personal_name   = var.peer_personal_name
-  peer_main_name       = var.peer_main_name
+  source          = "./modules/peering"
+  vpc_id          = module.network.vpc_id
+  peerings        = var.peerings
+  route_table_ids = [module.network.public_route_table_id, module.network.private_route_table_id]
 }

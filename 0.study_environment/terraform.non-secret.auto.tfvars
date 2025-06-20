@@ -1,5 +1,6 @@
 # Global
-region = "eu-central-1"
+region  = "eu-central-1"
+profile = "terraform-study"
 
 # Network Module Variables
 vpc_cidr_block                       = "10.2.0.0/16"
@@ -10,11 +11,6 @@ vpc_instance_tenancy                 = "default"
 vpc_name                             = "my-study-vpc"
 
 igw_name = "my-igw"
-
-route_peer_1_cidr = "10.0.0.0/16"
-route_peer_2_cidr = "10.1.0.0/16"
-route_peer_1_id   = "pcx-08a4b761d5e767b01"
-route_peer_2_id   = "pcx-07f5c1ad5e3b472ac"
 
 public_route_table_name  = "Public-RT"
 private_route_table_name = "Private-RT"
@@ -60,7 +56,15 @@ sg_web_name = "Web-Access"
 sg_internal_name = "Internal-Access"
 
 # Peering Module Variables
-peer_personal_vpc_id = "vpc-09ae5bda14d06e230"
-peer_main_vpc_id     = "vpc-0c28f6cd530e40b62"
-peer_personal_name   = "peer-with-personal"
-peer_main_name       = "peer-with-main"
+peerings = [
+  {
+    name        = "peer-with-personal"
+    peer_vpc_id = "vpc-09ae5bda14d06e230"
+    peer_cidr   = "10.0.0.0/16"
+  },
+  {
+    name        = "peer-with-main"
+    peer_vpc_id = "vpc-0c28f6cd530e40b62"
+    peer_cidr   = "10.1.0.0/16"
+  }
+]
