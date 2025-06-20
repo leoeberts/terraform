@@ -188,19 +188,61 @@ variable "default_acl_name" {
 }
 
 # Security Module Variables
-variable "sg_default_name" {
-  type        = string
-  description = "Name of the default security group"
+variable "security_groups" {
+  description = "List of security groups"
+  type = list(object({
+    name        = string
+    description = string
+  }))
 }
 
-variable "sg_web_name" {
-  type        = string
-  description = "Name of the web access security group"
+# Security Group Rule Variables (separated by SG)
+variable "web_access_rules" {
+  description = "Rules for the Web-Access security group"
+  type = list(object({
+    security_group_name = string
+    type                = string
+    from_port           = number
+    to_port             = number
+    protocol            = string
+    cidr_blocks         = optional(list(string))
+    ipv6_cidr_blocks    = optional(list(string))
+    security_groups     = optional(list(string))
+    description         = optional(string)
+    self                = optional(bool)
+  }))
 }
 
-variable "sg_internal_name" {
-  type        = string
-  description = "Name of the internal access security group"
+variable "internal_access_rules" {
+  description = "Rules for the Internal-Access security group"
+  type = list(object({
+    security_group_name = string
+    type                = string
+    from_port           = number
+    to_port             = number
+    protocol            = string
+    cidr_blocks         = optional(list(string))
+    ipv6_cidr_blocks    = optional(list(string))
+    security_groups     = optional(list(string))
+    description         = optional(string)
+    self                = optional(bool)
+  }))
+}
+
+variable "default_sg_rules" {
+  description = "Rules for the default security group"
+  type = list(object({
+    security_group_name = string
+    type                = string
+    from_port           = number
+    to_port             = number
+    protocol            = string
+    cidr_blocks         = optional(list(string))
+    ipv6_cidr_blocks    = optional(list(string))
+    security_groups     = optional(list(string))
+    description         = optional(string)
+    self                = optional(bool)
+  }))
 }
 
 # Peering Module Variables
@@ -212,4 +254,21 @@ variable "peerings" {
     peer_cidr   = string
     peer_region = optional(string)
   }))
+}
+
+variable "peering_sg_rules" {
+  description = "List of security group rules related to VPC peering"
+  type = list(object({
+    security_group_name = string
+    type                = string
+    from_port           = number
+    to_port             = number
+    protocol            = string
+    cidr_blocks         = optional(list(string))
+    ipv6_cidr_blocks    = optional(list(string))
+    security_groups     = optional(list(string))
+    description         = optional(string)
+    self                = optional(bool)
+  }))
+  default = []
 }

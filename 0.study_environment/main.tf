@@ -52,16 +52,19 @@ module "security" {
 
   vpc_id = module.network.vpc_id
 
-  sg_default_name = var.sg_default_name
-
-  sg_web_name = var.sg_web_name
-
-  sg_internal_name = var.sg_internal_name
+  security_groups = var.security_groups
+  security_group_rules = concat(
+    var.default_sg_rules,
+    var.web_access_rules,
+    var.internal_access_rules
+  )
 }
 
 module "peering" {
-  source          = "./modules/peering"
-  vpc_id          = module.network.vpc_id
-  peerings        = var.peerings
-  route_table_ids = [module.network.public_route_table_id, module.network.private_route_table_id]
+  source             = "./modules/peering"
+  vpc_id             = module.network.vpc_id
+  peerings           = var.peerings
+  route_table_ids    = [module.network.public_route_table_id, module.network.private_route_table_id]
+  peering_sg_rules   = var.peering_sg_rules
+  security_group_ids = module.security.security_group_ids
 }

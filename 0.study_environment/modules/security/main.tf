@@ -1,95 +1,66 @@
-resource "aws_security_group" "default" {
-  name        = var.sg_default_name
-  description = "default VPC security group"
+resource "aws_security_group" "this" {
+  for_each    = { for sg in var.security_groups : sg.name => sg }
+  name        = each.value.name
+  description = each.value.description
   vpc_id      = var.vpc_id
-
-  ingress {
-    protocol  = "-1"
-    from_port = 0
-    to_port   = 0
-    self      = true
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
 }
 
-resource "aws_security_group" "web_access" {
-  name        = var.sg_web_name
-  description = "Allows SSH"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+# Rules with self = true
+resource "aws_security_group_rule" "self" {
+  for_each = {
+    for k, rule in var.security_group_rules : k => rule
+    if lookup(rule, "self", false) == true
   }
-
-  ingress {
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  ingress {
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  ingress {
-    from_port   = -1
-    to_port     = -1
-    protocol    = "icmp"
-    cidr_blocks = ["10.0.0.0/16"]
-    description = "peering-with-main"
-  }
-
-  ingress {
-    from_port   = -1
-    to_port     = -1
-    protocol    = "icmp"
-    cidr_blocks = ["10.1.0.0/16"]
-    description = "peering-with-personal"
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
+  type              = each.value.type
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  security_group_id = aws_security_group.this[each.value.security_group_name].id
+  self              = true
+  description       = lookup(each.value, "description", null)
 }
 
-resource "aws_security_group" "internal" {
-  name        = var.sg_internal_name
-  description = "Allow SSH from Web-Access"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.web_access.id]
+# Rules with source_security_group_id
+resource "aws_security_group_rule" "sg" {
+  for_each = {
+    for k, rule in var.security_group_rules : k => rule
+    if length(coalesce(lookup(rule, "security_groups", []), [])) > 0
   }
+  type                     = each.value.type
+  from_port                = each.value.from_port
+  to_port                  = each.value.to_port
+  protocol                 = each.value.protocol
+  security_group_id        = aws_security_group.this[each.value.security_group_name].id
+  source_security_group_id = aws_security_group.this[lookup(each.value, "security_groups", [])[0]].id
+  description              = lookup(each.value, "description", null)
+}
 
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+# Rules with cidr_blocks
+resource "aws_security_group_rule" "cidr" {
+  for_each = {
+    for k, rule in var.security_group_rules : k => rule
+    if length(coalesce(lookup(rule, "cidr_blocks", []), [])) > 0
   }
+  type              = each.value.type
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  security_group_id = aws_security_group.this[each.value.security_group_name].id
+  cidr_blocks       = each.value.cidr_blocks
+  description       = lookup(each.value, "description", null)
+}
+
+# Rules with ipv6_cidr_blocks
+resource "aws_security_group_rule" "ipv6" {
+  for_each = {
+    for k, rule in var.security_group_rules : k => rule
+    if length(coalesce(lookup(rule, "ipv6_cidr_blocks", []), [])) > 0
+  }
+  type              = each.value.type
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  security_group_id = aws_security_group.this[each.value.security_group_name].id
+  ipv6_cidr_blocks  = each.value.ipv6_cidr_blocks
+  description       = lookup(each.value, "description", null)
 }
