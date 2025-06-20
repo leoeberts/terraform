@@ -14,16 +14,18 @@ resource "aws_route" "peering_routes" {
   for_each = {
     for pair in flatten([
       for peering in var.peerings : [
-        for rt_id in var.route_table_ids : {
-          peering = peering
-          rt_id   = rt_id
+        for rt_name, rt_id in var.route_table_ids : {
+          key            = "${peering.name}-${rt_name}"
+          route_table_id = rt_id
+          peer_cidr      = peering.peer_cidr
+          peering_name   = peering.name
         }
       ]
     ]) :
-    "${pair.peering.name}-${pair.rt_id}" => {
-      route_table_id = pair.rt_id
-      peer_cidr      = pair.peering.peer_cidr
-      peering_name   = pair.peering.name
+    pair.key => {
+      route_table_id = pair.route_table_id
+      peer_cidr      = pair.peer_cidr
+      peering_name   = pair.peering_name
     }
   }
 

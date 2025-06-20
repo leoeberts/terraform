@@ -1,31 +1,13 @@
-variable "vpc_cidr_block" {
-  type        = string
-  description = "CIDR block for the VPC"
-}
-
-variable "vpc_enable_dns_support" {
-  type        = bool
-  description = "Whether to enable DNS support"
-}
-
-variable "vpc_enable_dns_hostnames" {
-  type        = bool
-  description = "Whether to enable DNS hostnames"
-}
-
-variable "vpc_assign_generated_ipv6_cidr_block" {
-  type        = bool
-  description = "Whether to assign IPv6 CIDR block"
-}
-
-variable "vpc_instance_tenancy" {
-  type        = string
-  description = "Instance tenancy for the VPC"
-}
-
-variable "vpc_name" {
-  type        = string
-  description = "Name tag for the VPC"
+variable "vpc" {
+  description = "VPC configuration"
+  type = object({
+    cidr_block                       = string
+    assign_generated_ipv6_cidr_block = bool
+    enable_dns_support               = bool
+    enable_dns_hostnames             = bool
+    instance_tenancy                 = string
+    name                             = string
+  })
 }
 
 variable "igw_name" {
@@ -33,116 +15,71 @@ variable "igw_name" {
   description = "Name tag for the Internet Gateway"
 }
 
-variable "public_route_table_name" {
-  type        = string
-  description = "Name for public route table"
-}
-
-variable "private_route_table_name" {
-  type        = string
-  description = "Name for private route table"
-}
-
-variable "subnet_private_1a_cidr" {
-  type = string
-}
-
-variable "subnet_private_1a_az" {
-  type = string
-}
-
-variable "subnet_private_1a_ipv6" {
-  type = string
-}
-
-variable "subnet_private_1a_name" {
-  type = string
-}
-
-variable "subnet_private_1b_cidr" {
-  type = string
-}
-
-variable "subnet_private_1b_az" {
-  type = string
-}
-
-variable "subnet_private_1b_ipv6" {
-  type = string
-}
-
-variable "subnet_private_1b_name" {
-  type = string
-}
-
-variable "subnet_private_1c_cidr" {
-  type = string
-}
-
-variable "subnet_private_1c_az" {
-  type = string
-}
-
-variable "subnet_private_1c_ipv6" {
-  type = string
-}
-
-variable "subnet_private_1c_name" {
-  type = string
-}
-
-variable "subnet_public_1a_cidr" {
-  type = string
-}
-
-variable "subnet_public_1a_az" {
-  type = string
-}
-
-variable "subnet_public_1a_ipv6" {
-  type = string
-}
-
-variable "subnet_public_1a_name" {
-  type = string
-}
-
-variable "subnet_public_1b_cidr" {
-  type = string
-}
-
-variable "subnet_public_1b_az" {
-  type = string
-}
-
-variable "subnet_public_1b_ipv6" {
-  type = string
-}
-
-variable "subnet_public_1b_name" {
-  type = string
-}
-
-variable "subnet_public_1c_cidr" {
-  type = string
-}
-
-variable "subnet_public_1c_az" {
-  type = string
-}
-
-variable "subnet_public_1c_ipv6" {
-  type = string
-}
-
-variable "subnet_public_1c_name" {
-  type = string
-}
-
 variable "default_acl_id" {
-  type = string
+  type        = string
+  description = "ID of the default network ACL"
 }
 
 variable "default_acl_name" {
-  type = string
+  type        = string
+  description = "Name tag for the default network ACL"
+}
+
+variable "subnets" {
+  description = "List of subnets"
+  type = list(object({
+    name                            = string
+    cidr_block                      = string
+    az                              = string
+    ipv6_cidr_block                 = string
+    map_public_ip_on_launch         = bool
+    assign_ipv6_address_on_creation = bool
+  }))
+}
+
+variable "route_tables" {
+  description = "List of route tables"
+  type = list(object({
+    name = string
+  }))
+}
+
+variable "routes" {
+  description = "List of routes"
+  type = list(object({
+    key                         = string
+    route_table_name            = string
+    destination_cidr_block      = optional(string)
+    destination_ipv6_cidr_block = optional(string)
+    gateway_id                  = optional(string)
+    nat_gateway_id              = optional(string)
+    transit_gateway_id          = optional(string)
+    vpc_peering_connection_id   = optional(string)
+    network_interface_id        = optional(string)
+    egress_only_gateway_id      = optional(string)
+  }))
+}
+
+variable "associations" {
+  description = "List of route table associations"
+  type = list(object({
+    key              = string
+    subnet_name      = string
+    route_table_name = string
+  }))
+}
+
+variable "network_acl_rules" {
+  description = "List of network ACL rules"
+  type = list(object({
+    key             = string
+    rule_number     = number
+    egress          = bool
+    protocol        = string
+    action          = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = number
+    to_port         = number
+  }))
 }
