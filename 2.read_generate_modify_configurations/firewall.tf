@@ -11,7 +11,7 @@ resource "aws_security_group" "terraform_firewall" {
 
 resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv4" {
   security_group_id = aws_security_group.terraform_firewall.id
-  cidr_ipv4         = "172.31.0.0/16"
+  cidr_ipv4         = "${aws_eip.lb.public_ip}/32"
   from_port         = 80
   ip_protocol       = "tcp"
   to_port           = 80
@@ -19,7 +19,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv4" {
 
 resource "aws_vpc_security_group_ingress_rule" "allow_https_ipv4" {
   security_group_id = aws_security_group.terraform_firewall.id
-  cidr_ipv4         = "172.31.0.0/16"
+  cidr_ipv4         = "${aws_eip.lb.public_ip}/32"
   from_port         = 443
   ip_protocol       = "tcp"
   to_port           = 443
