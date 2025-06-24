@@ -20,3 +20,7 @@ variable "app_port" {
 variable "ssh_port" {
   default = "443"
 }
+
+variable "username" {
+  type = list(number)
+}

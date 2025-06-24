@@ -9,5 +9,5 @@ terraform {
 
 provider "aws" {
   region  = var.region
-  profile = "terraform-study"
+  profile = "admin-study"
 }
