@@ -47,3 +47,37 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
+
+resource "aws_security_group" "web_firewall" {
+  name        = "web_enabled"
+  description = "Terraform test"
+  vpc_id      = "vpc-06c09fea3a4914da8"
+
+  tags = merge(
+    { Name = "web_enabled" },
+    var.tags
+  )
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_all_http_ipv4" {
+  security_group_id = aws_security_group.web_firewall.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = var.port["web"]
+  ip_protocol       = "tcp"
+  to_port           = var.port["web"]
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_all__http_ipv6" {
+  security_group_id = aws_security_group.web_firewall.id
+  cidr_ipv6         = "::/0"
+  from_port         = var.port["web"]
+  ip_protocol       = "tcp"
+  to_port           = var.port["web"]
+}
+
+resource "aws_vpc_security_group_egress_rule" "allow_all_web_traffic_ipv4" {
+  security_group_id = aws_security_group.web_firewall.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
+}
+

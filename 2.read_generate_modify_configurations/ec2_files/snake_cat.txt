@@ -1,0 +1,132 @@
+#!/bin/bash
+# Update and install Apache
+yum update -y
+yum install -y httpd
+systemctl enable httpd
+systemctl start httpd
+
+# Deploy the Cat Snake Game HTML file
+cat << 'EOF' > /var/www/html/index.html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Cat Snake Game</title>
+  <style>
+    body {
+      background-color: #f8f0e3;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      background-color: #fffaf5;
+      border: 5px solid #333;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      margin-bottom: 0.5em;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>🐱 Cat Snake Game</h1>
+    <canvas id="game" width="400" height="400"></canvas>
+    <p style="text-align:center;">Use arrow keys to move your cat 🐱. Eat the mouse 🐭!</p>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const gridSize = 20;
+    const tileCount = canvas.width / gridSize;
+
+    let snake = [{ x: 10, y: 10 }];
+    let dx = 0, dy = 0;
+    let food = { x: 5, y: 5 };
+    let tailLength = 3;
+    let gameOver = false;
+    let gameStarted = false;
+
+    function drawCell(x, y, content) {
+      ctx.font = '20px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(content, x * gridSize + gridSize / 2, y * gridSize + gridSize / 2);
+    }
+
+    function drawBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let segment of snake) {
+        drawCell(segment.x, segment.y, "🐱");
+      }
+      drawCell(food.x, food.y, "🐭");
+
+      if (!gameStarted) {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(0, canvas.height / 2 - 30, canvas.width, 60);
+        ctx.fillStyle = "#fff";
+        ctx.font = "20px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Press any arrow key to start!", canvas.width / 2, canvas.height / 2);
+      }
+    }
+
+    function gameLoop() {
+      if (gameOver) return;
+
+      if (gameStarted) {
+        const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+        if (
+          head.x < 0 || head.y < 0 ||
+          head.x >= tileCount || head.y >= tileCount ||
+          snake.some(segment => segment.x === head.x && segment.y === head.y)
+        ) {
+          alert("Game Over! Refresh to play again.");
+          gameOver = true;
+          return;
+        }
+
+        snake.unshift(head);
+        if (snake.length > tailLength) snake.pop();
+
+        if (head.x === food.x && head.y === food.y) {
+          tailLength++;
+          food = {
+            x: Math.floor(Math.random() * tileCount),
+            y: Math.floor(Math.random() * tileCount)
+          };
+        }
+      }
+
+      drawBoard();
+      setTimeout(gameLoop, 150);
+    }
+
+    document.addEventListener('keydown', e => {
+      if (!gameStarted && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        gameStarted = true;
+      }
+
+      switch (e.key) {
+        case 'ArrowUp': if (dy === 0) { dx = 0; dy = -1; } break;
+        case 'ArrowDown': if (dy === 0) { dx = 0; dy = 1; } break;
+        case 'ArrowLeft': if (dx === 0) { dx = -1; dy = 0; } break;
+        case 'ArrowRight': if (dx === 0) { dx = 1; dy = 0; } break;
+      }
+    });
+
+    drawBoard();
+    gameLoop();
+  </script>
+</body>
+</html>
+EOF
+
+# Restart Apache to ensure everything loads
+systemctl restart httpd

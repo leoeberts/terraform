@@ -1,0 +1,118 @@
+#!/bin/bash
+# Update and install Apache with CGI support
+yum update -y
+yum install -y httpd
+
+# Enable and start Apache
+systemctl enable httpd
+systemctl start httpd
+
+# Write HTML landing page with GIPHY embeds
+cat << 'EOF' > /var/www/html/index.html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🚀 Welcome to the EC2 Zone</title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      background-color: #1e1e2f;
+      color: #f1f1f1;
+      font-family: 'Courier New', Courier, monospace;
+      text-align: center;
+      padding-top: 50px;
+    }
+    h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 1.2em;
+    }
+    .button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 15px 30px;
+      margin: 20px;
+      text-decoration: none;
+      font-size: 1.2em;
+      border-radius: 8px;
+      display: inline-block;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #45a049;
+    }
+    #gif-box {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .giphy-embed {
+      display: none;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>👾 Hello, Earthling!</h1>
+  <p>You've reached an EC2 instance somewhere in the cloud.</p>
+  <button class="button" onclick="showGif()">Surprise Me</button>
+  <div id="gif-box">
+    <iframe id="gif0" src="https://giphy.com/embed/Tq2tPTrQANKfK" width="480" height="322" frameBorder="0" class="giphy-embed"></iframe>
+    <iframe id="gif1" src="https://giphy.com/embed/YwOFosmTM0Vag" width="480" height="269" frameBorder="0" class="giphy-embed"></iframe>
+    <iframe id="gif2" src="https://giphy.com/embed/TjnlTIi96BoJy" width="480" height="240" frameBorder="0" class="giphy-embed"></iframe>
+    <iframe id="gif3" src="https://giphy.com/embed/WSQmQwcRWBepujQQRJ" width="480" height="319" frameBorder="0" class="giphy-embed"></iframe>
+    <iframe id="gif4" src="https://giphy.com/embed/gxSc4hTA9QhsFagSbs" width="480" height="432" frameBorder="0" class="giphy-embed"></iframe>
+    <iframe id="gif5" src="https://giphy.com/embed/3cXmze4Y8igXdnkc3U" width="480" height="360" frameBorder="0" class="giphy-embed"></iframe>
+  </div>
+  <p>Uptime: <span id="uptime">Loading...</span></p>
+
+  <script>
+    function showGif() {
+      const count = 6;
+      for (let i = 0; i < count; i++) {
+        document.getElementById("gif" + i).style.display = 'none';
+      }
+      const index = Math.floor(Math.random() * count);
+      document.getElementById("gif" + index).style.display = 'block';
+    }
+
+    async function getUptime() {
+      try {
+        const response = await fetch('/uptime');
+        document.getElementById('uptime').textContent = (await response.text()).trim();
+      } catch {
+        document.getElementById('uptime').textContent = 'Unavailable';
+      }
+    }
+
+    getUptime();
+  </script>
+</body>
+</html>
+EOF
+
+# Configure Apache to allow CGI
+cat << 'EOF' > /etc/httpd/conf.d/uptime.conf
+ScriptAlias /uptime /usr/lib/cgi-bin/uptime.sh
+<Directory "/usr/lib/cgi-bin">
+    Options +ExecCGI
+    AddHandler cgi-script .sh
+    Require all granted
+</Directory>
+EOF
+
+# Create the uptime CGI script
+mkdir -p /usr/lib/cgi-bin
+cat << 'EOF' > /usr/lib/cgi-bin/uptime.sh
+#!/bin/bash
+echo "Content-type: text/plain"
+echo ""
+uptime -p
+EOF
+
+chmod +x /usr/lib/cgi-bin/uptime.sh
+
+# Restart Apache to load everything
+systemctl restart httpd
