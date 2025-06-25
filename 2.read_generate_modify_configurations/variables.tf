@@ -30,6 +30,11 @@ variable "tags" {
   type = map(any)
 }
 
+variable "cluster_reason" {
+  type    = list(any)
+  default = ["Test", "Create", "Multiple"]
+}
+
 /*variable "username" {
   type = list(number)
 }*/
