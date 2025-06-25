@@ -11,7 +11,8 @@ resource "aws_instance" "cluster" {
   count                  = 3
 
   tags = {
-    Name   = "cluster_#${count.index}"
-    Reason = var.cluster_reason[count.index]
+    Name      = "cluster_#${count.index}"
+    Reason    = var.cluster_reason[count.index]
+    Condition = count.index < 1 ? "First" : "Not first"
   }
 }
