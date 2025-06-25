@@ -4,8 +4,12 @@ variable "region" {
 }
 
 variable "ami" {
-  type        = string
-  description = "the region AMI"
+  type        = map(any)
+  description = "AMI per region"
+  default = {
+    eu-central-1   = "ami-092ff8e60e2d51e19",
+    ap-northeast-1 = "ami-0bb2c57f7cfafb1cb"
+  }
 }
 
 variable "ipv4_cidr" {
@@ -13,14 +17,19 @@ variable "ipv4_cidr" {
   description = "a better way of handling static values"
 }
 
-variable "app_port" {
-  default = "8080"
+variable "port" {
+  type = map(any)
+  default = {
+    web = "80",
+    app = "8080",
+    ssh = "443",
+  }
 }
 
-variable "ssh_port" {
-  default = "443"
+variable "tags" {
+  type = map(any)
 }
 
-variable "username" {
+/*variable "username" {
   type = list(number)
-}
+}*/
