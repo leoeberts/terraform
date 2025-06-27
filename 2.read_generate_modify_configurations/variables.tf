@@ -17,15 +17,6 @@ variable "ipv4_cidr" {
   description = "a better way of handling static values"
 }
 
-variable "port" {
-  type = map(any)
-  default = {
-    web = "80",
-    app = "8080",
-    ssh = "443",
-  }
-}
-
 variable "tags" {
   type = map(any)
 }

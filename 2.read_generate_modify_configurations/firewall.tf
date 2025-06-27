@@ -1,4 +1,14 @@
-## 34. Security Group Pratical
+locals {
+  port = {
+    web = "80",
+    app = "8080",
+    ssh = "443",
+  }
+  everywhere_cidr_v4 = "0.0.0.0/0"
+  everywhere_cidr_v6 = "::/0"
+  public_ip_cidr_v4  = "${aws_eip.lb.public_ip}/32"
+}
+
 resource "aws_security_group" "terraform_firewall" {
   name        = "terraform_firewall"
   description = "Terraform test"
@@ -12,39 +22,39 @@ resource "aws_security_group" "terraform_firewall" {
 
 resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv4" {
   security_group_id = aws_security_group.terraform_firewall.id
-  cidr_ipv4         = "${aws_eip.lb.public_ip}/32"
-  from_port         = var.port["app"]
+  cidr_ipv4         = local.public_ip_cidr_v4
+  from_port         = local.port["app"]
   ip_protocol       = "tcp"
-  to_port           = var.port["app"]
+  to_port           = local.port["app"]
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_https_ipv4" {
   security_group_id = aws_security_group.terraform_firewall.id
-  cidr_ipv4         = "${aws_eip.lb.public_ip}/32"
-  from_port         = var.port["ssh"]
+  cidr_ipv4         = local.public_ip_cidr_v4
+  from_port         = local.port["ssh"]
   ip_protocol       = "tcp"
-  to_port           = var.port["ssh"]
+  to_port           = local.port["ssh"]
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_http_ipv4_other" {
   security_group_id = aws_security_group.terraform_firewall.id
   cidr_ipv4         = var.ipv4_cidr
-  from_port         = var.port["app"]
+  from_port         = local.port["app"]
   ip_protocol       = "tcp"
-  to_port           = var.port["app"]
+  to_port           = local.port["app"]
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_https_ipv4_other" {
   security_group_id = aws_security_group.terraform_firewall.id
   cidr_ipv4         = var.ipv4_cidr
-  from_port         = var.port["ssh"]
+  from_port         = local.port["ssh"]
   ip_protocol       = "tcp"
-  to_port           = var.port["ssh"]
+  to_port           = local.port["ssh"]
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   security_group_id = aws_security_group.terraform_firewall.id
-  cidr_ipv4         = "0.0.0.0/0"
+  cidr_ipv4         = local.everywhere_cidr_v4
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
@@ -61,23 +71,23 @@ resource "aws_security_group" "web_firewall" {
 
 resource "aws_vpc_security_group_ingress_rule" "allow_all_http_ipv4" {
   security_group_id = aws_security_group.web_firewall.id
-  cidr_ipv4         = "0.0.0.0/0"
-  from_port         = var.port["web"]
+  cidr_ipv4         = local.everywhere_cidr_v4
+  from_port         = local.port["web"]
   ip_protocol       = "tcp"
-  to_port           = var.port["web"]
+  to_port           = local.port["web"]
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_all__http_ipv6" {
   security_group_id = aws_security_group.web_firewall.id
-  cidr_ipv6         = "::/0"
-  from_port         = var.port["web"]
+  cidr_ipv6         = local.everywhere_cidr_v6
+  from_port         = local.port["web"]
   ip_protocol       = "tcp"
-  to_port           = var.port["web"]
+  to_port           = local.port["web"]
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_web_traffic_ipv4" {
   security_group_id = aws_security_group.web_firewall.id
-  cidr_ipv4         = "0.0.0.0/0"
+  cidr_ipv4         = local.everywhere_cidr_v4
   ip_protocol       = "-1"
 }
 
