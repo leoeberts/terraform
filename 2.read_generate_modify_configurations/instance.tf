@@ -1,5 +1,5 @@
 resource "aws_instance" "web_snake_cat" {
-  ami                    = var.ami[var.region]
+  ami                    = data.aws_ami.latest_linux.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.web_firewall.id]
   user_data              = file("./ec2_files/snake_cat.txt")
@@ -10,7 +10,7 @@ resource "aws_instance" "web_snake_cat" {
 }
 
 resource "aws_instance" "web_welcome_earthling" {
-  ami                    = var.ami[var.region]
+  ami                    = data.aws_ami.latest_linux.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.web_firewall.id]
   user_data              = file("./ec2_files/welcome_earthling.txt")
