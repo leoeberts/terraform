@@ -32,3 +32,7 @@ resource "aws_instance" "cluster" {
     Condition = count.index < 1 ? "First" : "Not first"
   }
 }
+
+output "cluster_ids" {
+  value = aws_instance.cluster[*].id
+}
