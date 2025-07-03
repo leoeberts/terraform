@@ -31,6 +31,26 @@ resource "aws_instance" "cluster" {
     Reason    = var.cluster_reason[count.index]
     Condition = count.index < 1 ? "First" : "Not first"
   }
+
+  # Meta arguments
+  # depends_on = [aws_security_group.terraform_firewall]
+  # - Handle dependencies between resources that Terraform cannot detect automatically
+  # provider   = aws.us_east_1
+  # - override provider configurations for a resource
+  # for_each = aws_eip.lb
+  # - Create multiple instances of a resource from a map or set
+  # count = 3
+  # - Create a specific number of instances of a resource
+  # lifecycle
+  # - Manage the lifecycle of a resource
+  # - ignore_changes = [tags] # ignore changes to tags
+  # - create_before_destroy = true # create the new resource before destroying the old one
+  # - prevent_destroy = true # prevent the resource from being destroyed
+  # - replace_triggered_by = [aws_security_group.terraform_firewall] # replace the resource when the security group is changed
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 output "cluster_ids" {
