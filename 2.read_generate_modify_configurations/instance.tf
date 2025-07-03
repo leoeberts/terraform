@@ -18,6 +18,11 @@ resource "aws_instance" "web_welcome_earthling" {
   tags = {
     Name = "web_welcome_earthling"
   }
+
+  lifecycle {
+    # - prevent the resource from being destroyed (chnage or destroy command)
+    prevent_destroy = true
+  }
 }
 
 resource "aws_instance" "cluster" {
@@ -49,6 +54,7 @@ resource "aws_instance" "cluster" {
   # - replace_triggered_by = [aws_security_group.terraform_firewall] # replace the resource when the security group is changed
 
   lifecycle {
+    # - create the new resource before destroying the old one, if creation fails the resource is not destroyed
     create_before_destroy = true
   }
 }
