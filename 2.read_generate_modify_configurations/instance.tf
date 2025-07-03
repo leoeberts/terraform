@@ -36,3 +36,7 @@ resource "aws_instance" "cluster" {
 output "cluster_ids" {
   value = aws_instance.cluster[*].id
 }
+
+output "cluster_id_by_name" {
+  value = zipmap(aws_instance.cluster[*].tags.Name, aws_instance.cluster[*].id)
+}
