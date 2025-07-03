@@ -16,12 +16,15 @@ resource "aws_instance" "web_welcome_earthling" {
   user_data              = file("./ec2_files/welcome_earthling.txt")
 
   tags = {
-    Name = "web_welcome_earthling"
+    Name = "web_welcome_earthling_1"
   }
 
   lifecycle {
     # - prevent the resource from being destroyed (chnage or destroy command)
-    prevent_destroy = true
+    # prevent_destroy = true
+
+    # - ignore changes. Both in the remote resource and in the configuration 
+    ignore_changes = [ami, tags]
   }
 }
 
