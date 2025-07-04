@@ -90,4 +90,3 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_web_traffic_ipv4" {
   cidr_ipv4         = local.everywhere_cidr_v4
   ip_protocol       = "-1"
 }
-
