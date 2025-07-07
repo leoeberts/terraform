@@ -2,7 +2,7 @@ locals {
   port = {
     web = "80",
     app = "8080",
-    ssh = "443",
+    ssh = "22",
   }
   everywhere_cidr_v4 = "0.0.0.0/0"
   everywhere_cidr_v6 = "::/0"
