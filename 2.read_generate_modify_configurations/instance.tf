@@ -1,33 +1,3 @@
-resource "aws_instance" "web_snake_cat" {
-  ami                    = data.aws_ami.latest_linux.id
-  instance_type          = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.web_firewall.id]
-  user_data              = file("./ec2_files/snake_cat.txt")
-
-  tags = {
-    Name = "web_snake_cat"
-  }
-}
-
-resource "aws_instance" "web_welcome_earthling" {
-  ami                    = data.aws_ami.latest_linux.id
-  instance_type          = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.web_firewall.id]
-  user_data              = file("./ec2_files/welcome_earthling.txt")
-
-  tags = {
-    Name = "web_welcome_earthling_1"
-  }
-
-  lifecycle {
-    # - prevent the resource from being destroyed (chnage or destroy command)
-    # prevent_destroy = true
-
-    # - ignore changes. Both in the remote resource and in the configuration 
-    ignore_changes = [ami, tags]
-  }
-}
-
 resource "aws_instance" "cluster" {
   ami                    = var.ami[var.region]
   instance_type          = "t2.micro"
@@ -59,6 +29,7 @@ resource "aws_instance" "cluster" {
   lifecycle {
     # - create the new resource before destroying the old one, if creation fails the resource is not destroyed
     create_before_destroy = true
+    ignore_changes        = [ami, tags]
   }
 }
 
