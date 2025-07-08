@@ -53,6 +53,11 @@ resource "aws_instance" "web" {
     command = "echo ${self.public_ip} > public_ip.txt"
   }
 
+  provisioner "local-exec" {
+    when    = destroy
+    command = "echo ^<offline^> > public_ip.txt"
+  }
+
   connection {
     host        = self.public_ip
     type        = "ssh"
@@ -64,6 +69,54 @@ resource "aws_instance" "web" {
     inline = [
       "sudo yum -y install nginx",
       "sudo systemctl start nginx",
+    ]
+  }
+}
+
+resource "aws_instance" "provisioner_fail_test_continue" {
+  ami                    = data.aws_ami.latest_linux.id
+  instance_type          = var.instance_type
+  vpc_security_group_ids = [aws_security_group.web_firewall.id]
+  key_name               = data.aws_key_pair.study_key.key_name
+  tags = {
+    Name = "terraform-fail_test_continue"
+  }
+
+  connection {
+    host        = self.public_ip
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = file("Study.pem")
+  }
+
+  provisioner "remote-exec" {
+    on_failure = continue
+    inline = [
+      " yum install yarn"
+    ]
+  }
+}
+
+resource "aws_instance" "provisioner_fail_test_tainted" {
+  ami                    = data.aws_ami.latest_linux.id
+  instance_type          = var.instance_type
+  vpc_security_group_ids = [aws_security_group.web_firewall.id]
+  key_name               = data.aws_key_pair.study_key.key_name
+  tags = {
+    Name = "terraform-fail_test_tainted"
+  }
+
+  connection {
+    host        = self.public_ip
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = file("Study.pem")
+  }
+
+  provisioner "remote-exec" {
+    on_failure = fail #default
+    inline = [
+      " yum install yarn"
     ]
   }
 }
