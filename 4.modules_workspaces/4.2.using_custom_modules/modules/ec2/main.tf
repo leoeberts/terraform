@@ -1,9 +1,17 @@
-provider "aws" {
-  region  = "eu-central-1"
-  profile = "terraform-study"
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
 }
 
 resource "aws_instance" "web" {
-  ami           = "ami-092ff8e60e2d51e19"
-  instance_type = "t2.micro"
+  ami           = local.effective_ami
+  instance_type = var.instance_type
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
