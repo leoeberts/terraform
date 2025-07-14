@@ -7,7 +7,7 @@ terraform {
   }
 }
 
-resource "aws_instance" "web" {
+resource "aws_instance" "instance" {
   ami           = local.effective_ami
   instance_type = var.instance_type
 
