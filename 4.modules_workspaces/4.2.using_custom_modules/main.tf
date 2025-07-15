@@ -4,24 +4,30 @@ module "my_ec2_from_github" {
 
 module "latest_linux_ami" {
   source = "./modules/ami"
-  filter = [
-    {
-      name   = "name"
-      values = ["al*-ami-20*-kernel-6*-x86_64"]
-    },
-    {
-      name   = "architecture"
-      values = ["x86_64"]
-    },
-    {
-      name   = "virtualization-type"
-      values = ["hvm"]
-    }
-  ]
+  providers = {
+    aws.frankfurt = aws
+    aws.ireland   = aws.ireland
+  }
+
+  filter = var.ami_filter
 }
 
-module "my_ec2_from_local" {
-  source        = "./modules/ec2"
-  ami           = module.latest_linux_ami.ami.id
+module "my_ec2_from_local_frankfurt" {
+  source = "./modules/ec2"
+  providers = {
+    aws = aws
+  }
+
+  ami           = module.latest_linux_ami.ami.frankfurt.id
+  instance_type = "t2.micro"
+}
+
+module "my_ec2_from_local_ireland" {
+  source = "./modules/ec2"
+  providers = {
+    aws = aws.ireland
+  }
+
+  ami           = module.latest_linux_ami.ami.ireland.id
   instance_type = "t2.micro"
 }

@@ -9,11 +9,11 @@ terraform {
 
 provider "aws" {
   profile = "terraform-study"
-  region  = var.regions.default.region
+  region  = "eu-central-1"
 }
 
 provider "aws" {
   profile = "terraform-study"
   alias   = "ireland"
-  region  = var.regions.ireland.region
+  region  = "eu-west-1"
 }
