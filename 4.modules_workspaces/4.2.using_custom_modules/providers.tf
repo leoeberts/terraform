@@ -8,6 +8,12 @@ terraform {
 }
 
 provider "aws" {
-  region  = var.region
   profile = "terraform-study"
+  region  = var.regions.default.region
+}
+
+provider "aws" {
+  profile = "terraform-study"
+  alias   = "ireland"
+  region  = var.regions.ireland.region
 }
