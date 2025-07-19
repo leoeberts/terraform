@@ -1,6 +1,3 @@
-region  = "eu-central-1"
-profile = "terraform-study"
-
 vpc = {
   cidr_block                       = "10.2.0.0/16"
   assign_generated_ipv6_cidr_block = true
