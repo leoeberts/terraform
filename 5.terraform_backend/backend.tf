@@ -1,0 +1,11 @@
+locals {
+  region = "us-east-1"
+}
+terraform {
+  backend "s3" {
+    use_lockfile = true
+    region       = "eu-central-1"
+    bucket       = "terraform-state-bucket-852456"
+    key          = "terraform.tfstate"
+  }
+}
