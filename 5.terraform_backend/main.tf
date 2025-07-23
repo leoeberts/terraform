@@ -21,6 +21,6 @@ resource "aws_security_group" "example" {
   }
 }
 
-resource "time_sleep" "wait_20s" {
-  create_duration = "20s"
+resource "time_sleep" "wait_for_10s" {
+  create_duration = "10s"
 }
